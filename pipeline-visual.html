@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead-Intake Pipeline — Visual Flow · PLG</title>
+<style>
+:root{--ink:#0b0c10;--body:#23262b;--muted:#6f7680;--faint:#9aa0a8;--line:#e9e9ec;--hair:#f1f1f3;--paper:#fff;--bg:#eceef1;--gold:#9a7b4f;--gold-soft:#b89a6e}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--body);font-family:"Inter","Helvetica Neue",-apple-system,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+header.mast{background:linear-gradient(160deg,#15171c 0%,#0b0c10 100%);color:#fff;padding:30px 40px 26px}
+.eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-soft);font-weight:700;margin:0 0 14px}
+.mast h1{font-size:28px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.02em}
+.mast .subt{font-size:15px;color:#b9bdc4;margin:9px 0 0;max-width:760px}
+.goldrule{height:2px;width:64px;background:var(--gold);border:0;margin:18px 0 0}
+.bar{display:flex;flex-wrap:wrap;gap:10px 8px;align-items:center;padding:16px 40px;background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.tabs{display:flex;gap:6px}
+.tab{font-size:13px;font-weight:650;padding:8px 16px;border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:7px;cursor:pointer;letter-spacing:.01em}
+.tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.tab:hover:not(.active){border-color:var(--gold-soft);color:var(--ink)}
+.spacer{flex:1}
+.ctrl{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.btn{font-size:12.5px;font-weight:650;padding:8px 14px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:7px;cursor:pointer}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+input[type=range]{accent-color:var(--gold);width:120px}
+.legend{display:flex;flex-wrap:wrap;gap:7px 16px;padding:13px 40px;background:#f7f7f9;border-bottom:1px solid var(--line);font-size:11.5px;color:var(--body)}
+.legend .li{display:flex;align-items:center;gap:7px}
+.legend .sw{width:13px;height:13px;border-radius:3px;flex:none}
+.stage{padding:26px 40px 60px;overflow:auto}
+.canvaswrap{background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 1px 2px rgba(11,12,16,.06),0 16px 44px rgba(11,12,16,.08);padding:18px;display:inline-block;min-width:100%}
+.figttl{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:700;margin:2px 4px 14px}
+svg{display:block}
+.foot{padding:6px 44px 40px;color:var(--faint);font-size:11.5px}
+.hint{color:var(--faint);font-size:11.5px;margin-left:4px}
+</style></head>
+<body>
+<header class="mast">
+  <p class="eyebrow">PLG · Consumer-Protection Intake</p>
+  <h1>Lead-Intake Pipeline — Visual Flow</h1>
+  <p class="subt">The full pipeline left-to-right: a person moves from first contact to a signed retainer (Lead board), then each claim runs from evidence to filed (Case board). Color is meaning — a glance tells you what kind of state a box is.</p>
+  <hr class="goldrule">
+</header>
+
+<div class="bar">
+  <div class="tabs" id="tabs"></div>
+  <div class="spacer"></div>
+  <div class="ctrl"><span>Zoom</span><input type="range" id="zoom" min="40" max="200" value="100"><span id="zlbl">100%</span></div>
+  <button class="btn" id="fit">Fit width</button>
+  <button class="btn" id="png">Download PNG</button>
+  <button class="btn" id="svg">Download SVG</button>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div class="stage">
+  <div class="figttl" id="figttl"></div>
+  <div class="canvaswrap"><div id="host"></div></div>
+  <span class="hint">Tip: scroll horizontally to follow the flow. Solid arrows = a disposition (door out of a stage). Dashed arrows = a recyclable lead re-entering the pipeline.</span>
+</div>
+<div class="foot" id="foot"></div>
+
+<script>
+const SVGNS="http://www.w3.org/2000/svg";
+const C={entry:"#0b0c10",work:"#356aa6",win:"#16a34a",attn:"#d97706",park:"#64748b",cov:"#0d9488",dead:"#dc2626"};
+const ARROW="#475569", ARROWD="#9aa3af";
+const BW=170, BH=70;
+
+const LEGEND=[
+ ["entry","Entry — just arrived, untouched"],
+ ["work","In motion — actively worked"],
+ ["win","Forward / win — advancing or won"],
+ ["attn","Bottleneck — needs attention"],
+ ["park","Parked, recyclable — re-enters"],
+ ["cov","Parked — good claim, wrong geography"],
+ ["dead","Closed — dead"],
+];
+
+// ---------- helpers ----------
+function el(t,a){const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function anchor(n,side,off){off=off||0;const w=n.w||BW,h=n.h||BH;const cx=n.x+w/2,cy=n.y+h/2;
+ if(n.shape==="diamond"){if(side==="r")return{x:n.x+w,y:cy};if(side==="l")return{x:n.x,y:cy};if(side==="t")return{x:cx,y:n.y};return{x:cx,y:n.y+h};}
+ if(side==="r")return{x:n.x+w,y:cy+off*h/2};
+ if(side==="l")return{x:n.x,y:cy+off*h/2};
+ if(side==="t")return{x:cx+off*w/2,y:n.y};
+ return{x:cx+off*w/2,y:n.y+h};
+}
+function ctrl(p,s,k){if(s==="r")return{x:p.x+k,y:p.y};if(s==="l")return{x:p.x-k,y:p.y};if(s==="t")return{x:p.x,y:p.y-k};return{x:p.x,y:p.y+k};}
+function pathD(p1,s1,p2,s2,k){k=k||64;const c1=ctrl(p1,s1,k),c2=ctrl(p2,s2,k);return `M${p1.x},${p1.y} C${c1.x},${c1.y} ${c2.x},${c2.y} ${p2.x},${p2.y}`;}
+
+function drawNode(g,n){
+ const w=n.w||BW,h=n.h||BH,fill=C[n.cat];
+ if(n.shape==="diamond"){
+   const cx=n.x+w/2,cy=n.y+h/2;
+   g.appendChild(el("polygon",{points:`${cx},${n.y} ${n.x+w},${cy} ${cx},${n.y+h} ${n.x},${cy}`,fill:fill,stroke:"#fff","stroke-width":2}));
+ } else {
+   g.appendChild(el("rect",{x:n.x,y:n.y,width:w,height:h,rx:11,ry:11,fill:fill}));
+ }
+ const cx=n.x+w/2;
+ const t1=el("text",{x:cx,y:n.y+(n.sub?h/2-3:h/2+5),"text-anchor":"middle",fill:"#fff","font-size":n.fs||13.5,"font-weight":750});
+ t1.textContent=n.label;g.appendChild(t1);
+ if(n.sub){const t2=el("text",{x:cx,y:n.y+h/2+15,"text-anchor":"middle",fill:"rgba(255,255,255,.82)","font-size":10.5,"font-weight":500});t2.textContent=n.sub;g.appendChild(t2);}
+}
+function drawEdge(g,d,nodes){
+ const from=nodes[d.from],to=nodes[d.to];
+ const p1=anchor(from,d.s1||"r",d.o1||0), p2=anchor(to,d.s2||"l",d.o2||0);
+ const dd=pathD(p1,d.s1||"r",p2,d.s2||"l",d.k);
+ const dash=d.dash?{ "stroke-dasharray":"5 4","stroke":ARROWD,"marker-end":"url(#ah-d)"}:{ "stroke":d.thick?"#1f2937":ARROW,"marker-end":"url(#ah)"};
+ g.appendChild(el("path",Object.assign({d:dd,fill:"none","stroke-width":d.thick?2.6:1.5,"stroke-linecap":"round"},dash)));
+ if(d.label){
+   let lx=d.lx, ly=d.ly;
+   if(lx==null){lx=(p1.x+p2.x)/2+(d.dx||0); ly=(p1.y+p2.y)/2+(d.dy||0);}
+   const words=d.label;const ww=Math.max(...words.split("\n").map(s=>s.length))*5.4+10;const lines=words.split("\n");
+   const bh=lines.length*12+6;
+   g.appendChild(el("rect",{x:lx-ww/2,y:ly-bh/2,width:ww,height:bh,rx:4,fill:"#fff",opacity:.92}));
+   lines.forEach((ln,i)=>{const t=el("text",{x:lx,y:ly-bh/2+12+i*12,"text-anchor":"middle",fill:d.dash?"#5b6470":"#3a3f47","font-size":10,"font-weight":600});t.textContent=ln;g.appendChild(t);});
+ }
+}
+function band(g,x,y,w,txt){
+ g.appendChild(el("rect",{x:x,y:y,width:w,height:24,rx:6,fill:"#15171c"}));
+ const t=el("text",{x:x+12,y:y+16,fill:"#b89a6e","font-size":11,"font-weight":750,"letter-spacing":"0.12em"});t.textContent=txt;g.appendChild(t);
+}
+
+function render(diag){
+ const svg=el("svg",{viewBox:`0 0 ${diag.vb[0]} ${diag.vb[1]}`,width:diag.vb[0],height:diag.vb[1],xmlns:SVGNS});
+ svg.style.fontFamily='"Inter","Helvetica Neue",Arial,sans-serif';
+ const defs=el("defs",{});
+ defs.innerHTML=`<marker id="ah" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="${ARROW}"/></marker>`+
+ `<marker id="ah-d" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4.5 L0,9 z" fill="${ARROWD}"/></marker>`;
+ svg.appendChild(defs);
+ svg.appendChild(el("rect",{x:0,y:0,width:diag.vb[0],height:diag.vb[1],fill:"#fff"}));
+ const gB=el("g",{}),gE=el("g",{}),gN=el("g",{});
+ (diag.bands||[]).forEach(b=>band(gB,b[0],b[1],b[2],b[3]));
+ (diag.dividers||[]).forEach(dv=>{
+   gB.appendChild(el("line",{x1:dv.x,y1:dv.y1,x2:dv.x,y2:dv.y2,stroke:"#b89a6e","stroke-width":1.4,"stroke-dasharray":"3 4"}));
+   if(dv.txt){const t=el("text",{x:dv.x,y:dv.y1-8,"text-anchor":"middle",fill:"#9a7b4f","font-size":10.5,"font-weight":700});t.textContent=dv.txt;gB.appendChild(t);}
+ });
+ (diag.notes||[]).forEach(nt=>{const t=el("text",{x:nt.x,y:nt.y,"text-anchor":nt.a||"start",fill:"#9aa0a8","font-size":nt.fs||10.5,"font-weight":600,"font-style":"italic"});t.textContent=nt.t;gB.appendChild(t);});
+ diag.edges.forEach(d=>drawEdge(gE,d,diag.nodes));
+ Object.values(diag.nodes).forEach(n=>drawNode(gN,n));
+ svg.appendChild(gB);svg.appendChild(gE);svg.appendChild(gN);
+ return svg;
+}
+
+// ---------- diagram data ----------
+const DIAGRAMS={};
+
+// LEAD BOARD
+DIAGRAMS.lead={
+ title:"Figure A — Lead board · person → signed retainer",
+ vb:[1760,700],
+ bands:[[40,18,1810-40,"LEAD BOARD · six checkpoints — most leads sign on the first call"]],
+ notes:[],
+ nodes:{
+  newlead:{x:40,y:300,cat:"entry",label:"New Lead",sub:"untouched"},
+  attempt:{x:280,y:300,cat:"work",label:"Attempting",sub:"~6 tries · 7 days"},
+  working:{x:520,y:300,cat:"work",label:"Working / Qualifying",sub:"resolve on the call"},
+  gate:{x:770,y:275,w:175,h:120,shape:"diamond",cat:"work",label:"GATE",sub:"coverage + evidence"},
+  rsent:{x:1010,y:300,cat:"work",label:"Retainer Sent",sub:"sign by link"},
+  retained:{x:1270,y:300,cat:"win",label:"Retained",sub:"retainer executed"},
+  tocase:{x:1510,y:300,cat:"work",label:"→ Case board",sub:"opens 1..N cases"},
+  covhold:{x:520,y:80,cat:"cov",label:"Coverage Hold",sub:"good claim · wrong geo"},
+  objection:{x:1010,y:80,cat:"park",label:"Objection / Follow-up",sub:"client hesitated"},
+  nurture:{x:300,y:560,w:210,cat:"park",label:"Nurture / Recovery",sub:"recyclable · re-enters"},
+  dq:{x:720,y:560,w:185,cat:"dead",label:"Disqualified",sub:"dead · suppression only"},
+ },
+ edges:[
+  {from:"newlead",to:"attempt",label:"first dial ≤1 min"},
+  {from:"attempt",to:"working",label:"connected"},
+  {from:"working",to:"gate"},
+  {from:"gate",to:"rsent",label:"by link",dy:-11},
+  {from:"rsent",to:"retained",label:"signs"},
+  {from:"gate",to:"retained",s1:"t",s2:"t",k:120,label:"signs on the call (most)",dy:-6},
+  {from:"retained",to:"tocase",label:"opens 1..N cases",thick:true},
+  // coverage hold (top)
+  {from:"working",to:"covhold",s1:"t",s2:"b",o1:-0.5,o2:-0.5,label:"evidenced · no coverage"},
+  {from:"covhold",to:"working",s1:"b",s2:"t",o1:0.5,o2:0.5,dash:true,label:"coverage opens"},
+  // objection (top)
+  {from:"rsent",to:"objection",s1:"t",s2:"b",o1:-0.4,o2:-0.4,label:"raises a concern"},
+  {from:"objection",to:"retained",s1:"b",s2:"t",o1:0.5,o2:-0.3,label:"resolved · signs"},
+  {from:"objection",to:"dq",s1:"b",s2:"t",o1:-0.5,o2:0.4,k:90,label:"declines"},
+  {from:"objection",to:"nurture",s1:"l",s2:"t",o2:0.6,dash:true,k:120,label:"defer"},
+  // nurture (bottom) inbound
+  {from:"attempt",to:"nurture",s1:"b",s2:"t",o1:-0.3,o2:-0.55,label:"never reached"},
+  {from:"working",to:"nurture",s1:"b",s2:"t",o1:-0.4,o2:-0.05,label:"covered · no evidence"},
+  {from:"rsent",to:"nurture",s1:"b",s2:"t",o1:0.5,o2:0.55,dash:true,k:90,label:"cold · past day 5"},
+  {from:"nurture",to:"working",s1:"r",s2:"b",o1:-0.4,o2:-0.5,dash:true,label:"re-enter"},
+  // dq (bottom) inbound
+  {from:"attempt",to:"dq",s1:"b",s2:"t",o1:0.4,o2:-0.45,label:"wrong / bad number"},
+  {from:"working",to:"dq",s1:"b",s2:"t",o1:0.45,o2:0.15,label:"no claim · no coverage"},
+ ]
+};
+
+// CASE BOARD
+DIAGRAMS.case={
+ title:"Figure B — Case board · one track per sender · claim → filed",
+ vb:[1560,700],
+ bands:[[40,18,1500,"CASE BOARD · eight stages — the 1st case enters at Drafting, extra senders at Evidence Pending"]],
+ notes:[{x:40,y:266,t:"+ extra senders enter here",fs:10.5},{x:560,y:266,t:"1st case enters here →",fs:10.5}],
+ nodes:{
+  evpend:{x:40,y:300,cat:"attn",label:"Evidence Pending",sub:"14 days · the bottleneck"},
+  evrev:{x:300,y:300,cat:"work",label:"Evidence Review",sub:"2 business days"},
+  draft:{x:560,y:300,cat:"work",label:"Complaint Drafting",sub:"5 business days"},
+  ready:{x:820,y:300,cat:"win",label:"Ready to File",sub:"file ≤5 days"},
+  filed:{x:1080,y:300,cat:"win",label:"Filed",sub:""},
+  resolved:{x:1330,y:300,cat:"win",label:"Resolved",sub:"settlement / merits"},
+  cineed:{x:560,y:80,cat:"park",label:"Client Info Needed",sub:"one missing datum"},
+  onhold:{x:820,y:80,cat:"park",label:"On Hold",sub:"firm's direction · 30d"},
+  nrec:{x:1080,y:80,cat:"park",label:"Nurture / Recovery",sub:"recycle the lead"},
+  cdq:{x:300,y:560,w:280,cat:"dead",label:"Disqualified",sub:"no producible / terminal defect"},
+ },
+ edges:[
+  {from:"evpend",to:"evrev",label:"evidence received"},
+  {from:"evrev",to:"draft",label:"valid"},
+  {from:"draft",to:"ready",label:"complete"},
+  {from:"ready",to:"filed",label:"filed ≤5 days"},
+  {from:"filed",to:"resolved",label:"on the merits"},
+  {from:"draft",to:"cineed",s1:"t",s2:"b",o1:-0.45,o2:-0.45,label:"needs one datum"},
+  {from:"cineed",to:"draft",s1:"b",s2:"t",o1:0.45,o2:-0.45,dash:true,label:"datum obtained"},
+  {from:"cineed",to:"nrec",label:"unreachable",dash:true},
+  {from:"draft",to:"onhold",s1:"t",s2:"b",o1:0.45,o2:-0.45,label:"firm pauses"},
+  {from:"onhold",to:"draft",s1:"b",s2:"t",o1:0.45,o2:0.45,dash:true,label:"cleared"},
+  {from:"evrev",to:"evpend",s1:"b",s2:"b",o1:-0.4,o2:0.4,k:80,label:"invalid · recoverable",dash:true},
+  {from:"evpend",to:"cdq",s1:"b",s2:"l",o2:-0.3,label:"none producible"},
+  {from:"evrev",to:"cdq",s1:"b",s2:"t",o1:0.3,o2:-0.4,label:"invalid · terminal"},
+  {from:"draft",to:"cdq",s1:"b",s2:"t",o1:-0.3,o2:0.4,k:90,label:"defect can't clear"},
+  {from:"onhold",to:"cdq",s1:"l",s2:"t",o2:0.0,k:120,dash:false,label:"firm drops it"},
+ ]
+};
+
+// COMPLETE (schematic, glanceable)
+DIAGRAMS.complete={
+ title:"Figure C — The whole pipeline, integrated · left → right",
+ vb:[2640,620],
+ bands:[[40,22,1180,"LEAD BOARD · person → signed"],[1300,22,1300,"CASE BOARD · claim → filed"]],
+ dividers:[{x:1268,y1:90,y2:540,txt:"RETAINED opens one Case per sender"}],
+ nodes:{
+  newlead:{x:40,y:250,cat:"entry",label:"New Lead"},
+  attempt:{x:250,y:250,cat:"work",label:"Attempting"},
+  working:{x:460,y:250,cat:"work",label:"Working / Qual."},
+  gate:{x:690,y:225,w:170,h:110,shape:"diamond",cat:"work",label:"GATE",sub:"cov + evidence"},
+  rsent:{x:905,y:130,cat:"work",label:"Retainer Sent"},
+  retained:{x:1090,y:250,cat:"win",label:"Retained"},
+  evpend:{x:1340,y:130,cat:"attn",label:"Evidence Pending"},
+  draft:{x:1600,y:250,cat:"work",label:"Complaint Drafting"},
+  evrev:{x:1340,y:370,cat:"work",label:"Evidence Review"},
+  ready:{x:1860,y:250,cat:"win",label:"Ready to File"},
+  filed:{x:2080,y:250,cat:"win",label:"Filed"},
+  resolved:{x:2300,y:250,cat:"win",label:"Resolved"},
+  covhold:{x:460,y:440,cat:"cov",label:"Coverage Hold"},
+  nurture:{x:250,y:440,cat:"park",label:"Nurture / Recovery"},
+  dq:{x:690,y:440,cat:"dead",label:"Disqualified"},
+ },
+ edges:[
+  {from:"newlead",to:"attempt"},
+  {from:"attempt",to:"working"},
+  {from:"working",to:"gate"},
+  {from:"gate",to:"rsent",s1:"t",s2:"l",label:"by link"},
+  {from:"rsent",to:"retained",s1:"r",s2:"t",o2:-0.3,label:"signs"},
+  {from:"gate",to:"retained",label:"on call · most"},
+  {from:"retained",to:"evpend",s1:"r",s2:"l",label:"extra senders"},
+  {from:"retained",to:"draft",s1:"r",s2:"l",o1:0.3,label:"1st case",thick:true},
+  {from:"evpend",to:"draft",s1:"r",s2:"l",o2:-0.3,label:"reviewed"},
+  {from:"evpend",to:"evrev",s1:"b",s2:"t",dash:false},
+  {from:"evrev",to:"draft",s1:"r",s2:"l",o2:0.3},
+  {from:"draft",to:"ready"},
+  {from:"ready",to:"filed"},
+  {from:"filed",to:"resolved"},
+  {from:"working",to:"covhold",s1:"b",s2:"t",label:"no coverage"},
+  {from:"working",to:"nurture",s1:"b",s2:"t",o1:-0.5,o2:0.4,label:"no evidence"},
+  {from:"nurture",to:"working",s1:"t",s2:"b",o1:-0.5,o2:-0.5,dash:true,label:"re-enter"},
+  {from:"working",to:"dq",s1:"b",s2:"t",o1:0.4,label:"dead"},
+ ]
+};
+
+// ---------- UI ----------
+const ORDER=[["complete","Complete pipeline"],["lead","Lead board"],["case","Case board"]];
+let current="complete", scale=1, lastSVG=null;
+const host=document.getElementById("host");
+const tabsEl=document.getElementById("tabs");
+ORDER.forEach(([k,lbl])=>{const b=document.createElement("button");b.className="tab"+(k===current?" active":"");b.textContent=lbl;b.onclick=()=>{current=k;document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));b.classList.add("active");draw();fit();};tabsEl.appendChild(b);});
+const lg=document.getElementById("legend");
+LEGEND.forEach(([c,t])=>{const d=document.createElement("div");d.className="li";d.innerHTML=`<span class="sw" style="background:${C[c]}"></span>${t}`;lg.appendChild(d);});
+
+function draw(){
+ const diag=DIAGRAMS[current];
+ host.innerHTML="";
+ lastSVG=render(diag);
+ host.appendChild(lastSVG);
+ document.getElementById("figttl").textContent=diag.title;
+ applyScale();
+}
+function applyScale(){
+ const diag=DIAGRAMS[current];
+ lastSVG.setAttribute("width",diag.vb[0]*scale);
+ lastSVG.setAttribute("height",diag.vb[1]*scale);
+}
+function fit(){
+ const diag=DIAGRAMS[current];
+ const avail=document.querySelector(".stage").clientWidth-76;
+ scale=Math.min(2,Math.max(.4,avail/diag.vb[0]));
+ document.getElementById("zoom").value=Math.round(scale*100);
+ document.getElementById("zlbl").textContent=Math.round(scale*100)+"%";
+ applyScale();
+}
+document.getElementById("zoom").oninput=e=>{scale=e.target.value/100;document.getElementById("zlbl").textContent=e.target.value+"%";applyScale();};
+document.getElementById("fit").onclick=fit;
+document.getElementById("svg").onclick=()=>{
+ const s=new XMLSerializer().serializeToString(lastSVG);
+ const blob=new Blob([s],{type:"image/svg+xml"});const u=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=u;a.download=`plg-pipeline-${current}.svg`;a.click();URL.revokeObjectURL(u);
+};
+document.getElementById("png").onclick=()=>{
+ const diag=DIAGRAMS[current];const k=2.5;
+ const s=new XMLSerializer().serializeToString(lastSVG);
+ const img=new Image();
+ const svgBlob=new Blob([s],{type:"image/svg+xml;charset=utf-8"});const url=URL.createObjectURL(svgBlob);
+ img.onload=()=>{
+   const cv=document.createElement("canvas");cv.width=diag.vb[0]*k;cv.height=diag.vb[1]*k;
+   const ctx=cv.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,cv.width,cv.height);
+   ctx.drawImage(img,0,0,cv.width,cv.height);
+   URL.revokeObjectURL(url);
+   cv.toBlob(b=>{const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=`plg-pipeline-${current}.png`;a.click();URL.revokeObjectURL(u);});
+ };
+ img.src=url;
+};
+document.getElementById("foot").textContent="PLG · Lead-Intake Pipeline v4 · visual companion. Source: 2026-06-22 pipeline architecture. Generated by Rolls Roas.";
+window.addEventListener("resize",()=>{applyScale();});
+draw();fit();
+</script>
+</body></html>
