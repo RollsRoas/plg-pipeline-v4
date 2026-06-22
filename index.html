@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead-Intake Pipeline — Stages, Dispositions & Flow · PLG</title>
+<style>
+:root{--ink:#0b0c10;--body:#23262b;--muted:#6f7680;--faint:#9aa0a8;--line:#e9e9ec;--hair:#f1f1f3;--paper:#fff;--bg:#eceef1;--gold:#9a7b4f;--gold-soft:#b89a6e}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--body);font-family:"Inter","Helvetica Neue",-apple-system,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;font-feature-settings:"kern","liga"}
+.wrap{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr)}
+.sheet{background:var(--paper);min-width:0;box-shadow:0 1px 2px rgba(11,12,16,.08),0 18px 50px rgba(11,12,16,.10)}
+.pad{padding:0 70px}
+nav.toc{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:34px 20px 34px 26px;font-size:12.5px}
+nav.toc .lbl{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:14px}
+nav.toc a{display:block;color:var(--muted);text-decoration:none;padding:5px 0 5px 12px;border-left:2px solid transparent;margin-left:-2px;line-height:1.35}
+nav.toc a:hover{color:var(--ink)}
+nav.toc a.active{color:var(--ink);border-left-color:var(--gold);font-weight:600}
+header.mast{background:linear-gradient(160deg,#15171c 0%,#0b0c10 100%);color:#fff;padding:46px 70px 38px}
+.eyebrow{font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--gold-soft);font-weight:700;margin:0 0 22px}
+.mast h1{font-size:40px;line-height:1.05;margin:0;font-weight:800;letter-spacing:-.02em}
+.mast .subt{font-size:17px;color:#b9bdc4;margin:13px 0 0;font-weight:400;max-width:680px}
+.goldrule{height:2px;width:72px;background:var(--gold);border:0;margin:26px 0 0}
+.meta{display:flex;flex-wrap:wrap;gap:0 44px;margin:24px 0 0}
+.meta div b{display:block;color:var(--gold-soft);font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;margin-bottom:3px}
+.meta div span{color:#edeef0;font-weight:600;font-size:14px}
+h2{font-size:21px;color:var(--ink);margin:54px 0 6px;font-weight:800;letter-spacing:-.015em;padding-bottom:11px;border-bottom:1px solid var(--line);scroll-margin-top:18px}
+h2 .cdot{display:none}
+h3{font-size:15.5px;color:var(--ink);margin:30px 0 8px;font-weight:750;letter-spacing:-.01em}
+h4{font-size:14px;color:var(--ink);margin:22px 0 6px;font-weight:700}
+p{margin:11px 0}
+strong{color:var(--ink);font-weight:680}
+em{color:#3a3f47}
+a{color:var(--gold)}
+ul,ol{margin:11px 0;padding-left:0;list-style:none}
+ul li,ol li{position:relative;padding-left:22px;margin:6px 0}
+ul li::before{content:"";position:absolute;left:2px;top:9px;width:6px;height:6px;border-radius:50%;background:var(--gold-soft)}
+ol{counter-reset:o}
+ol li::before{counter-increment:o;content:counter(o);position:absolute;left:0;top:1px;width:17px;height:17px;background:var(--ink);color:#fff;border-radius:50%;font-size:10px;font-weight:700;text-align:center;line-height:17px}
+code{background:var(--hair);border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:12.5px;color:#3a3f47;font-family:"SF Mono",Menlo,Consolas,monospace}
+.cdot{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:13.5px}
+th,td{text-align:left;padding:9px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--ink);color:#fff;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;border:0}
+tbody tr:nth-child(even){background:#fafbfc}
+td code{white-space:nowrap}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:10px 26px;margin:20px 0;padding:20px 24px;background:#fafbfc;border:1px solid var(--line);border-radius:8px}
+.lg{display:flex;gap:11px;align-items:flex-start;font-size:13px}
+.lgsw{flex:0 0 14px;width:14px;height:14px;border-radius:4px;margin-top:3px}
+.lg b{display:block;color:var(--ink);font-size:12px;letter-spacing:.02em}
+figure.diagram{margin:24px 0;border:1px solid var(--line);border-radius:10px;background:#fcfcfd;padding:22px 22px 12px;text-align:center}
+figure.diagram .mermaid{display:flex;justify-content:center}
+figure.diagram svg{max-width:100%;height:auto}
+figcaption{font-size:12px;color:var(--muted);margin-top:12px;padding-top:11px;border-top:1px solid var(--line);text-align:left}
+figcaption b{color:var(--ink);text-transform:uppercase;letter-spacing:.1em;font-size:10px;margin-right:8px}
+footer.foot{padding:26px 70px 34px;border-top:1px solid var(--line);margin-top:46px;font-size:11.5px;color:var(--muted)}
+footer.foot .att{color:var(--faint);font-size:10.5px;margin-top:6px;letter-spacing:.02em}
+.bar{position:fixed;top:16px;right:18px;z-index:50}
+.bar button{background:var(--ink);color:#fff;border:0;border-radius:7px;padding:10px 17px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.03em;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.bar button:hover{background:#000}
+@media (max-width:1080px){.wrap{grid-template-columns:1fr}nav.toc{display:none}.pad,header.mast,footer.foot{padding-left:30px;padding-right:30px}.mast h1{font-size:30px}.legend{grid-template-columns:1fr}}
+@media print{body{background:#fff}.wrap{display:block;max-width:none}.sheet{box-shadow:none}nav.toc,.bar{display:none}header.mast,thead th,.cdot,.lgsw,.legend{-webkit-print-color-adjust:exact;print-color-adjust:exact}h2,h3{break-after:avoid}figure,table,.legend{break-inside:avoid}}
+</style></head>
+<body>
+<div class="bar"><button onclick="window.print()">Print / Save as PDF</button></div>
+<div class="wrap">
+  <nav class="toc"><div class="lbl">Contents</div><a href="#why-this-design-what-makes-an-intake-pipeline-effective">Why this design — what makes an intake pipeline effective</a><a href="#how-to-read-this">How to read this</a><a href="#1-the-model-a-person-and-their-claims">1 · The model: a person, and their claims</a><a href="#2-the-lead-board-stages-owners-clocks-dispositions">2 · The Lead board — stages, owners, clocks, dispositions</a><a href="#3-the-send-retainer-gate-and-the-2-2-fork">3 · The Send-Retainer Gate and the 2×2 fork</a><a href="#4-the-three-resting-places-none-of-them-is-the-trash">4 · The three resting places — none of them is the trash</a><a href="#5-the-case-board-one-track-per-sender">5 · The Case board — one track per sender</a><a href="#6-the-whole-picture-integrated">6 · The whole picture, integrated</a><a href="#7-time-governance-sla-and-what-happens-when-it-runs-out">7 · Time governance — SLA and what happens when it runs out</a><a href="#8-ownership-and-daily-focus">8 · Ownership and daily focus</a><a href="#9-the-lead-s-status-is-a-roll-up-of-its-cases">9 · The Lead&#x27;s status is a roll-up of its cases</a><a href="#10-fields-what-travels-on-the-card-not-as-a-stage">10 · Fields — what travels on the card, not as a stage</a><a href="#11-the-board-is-run-from-views">11 · The board is run from views</a><a href="#12-key-measures-read-off-the-board-no-invented-metric">12 · Key measures — read off the board, no invented metric</a><a href="#13-source-agnostic-intake-and-the-two-way-hand-off">13 · Source-agnostic intake and the two-way hand-off</a><a href="#14-building-it-in-monday">14 · Building it in Monday</a></nav>
+  <main class="sheet">
+    <header class="mast">
+      <p class="eyebrow">Intake Pipeline · Advisory</p>
+      <h1>Lead-Intake Pipeline</h1>
+      <p class="subt">Stages, dispositions &amp; flow — an optimized intake design for PLG's TCPA practice, modeled for Monday and built to run ~1,000 qualified, signed cases a month.</p>
+      <hr class="goldrule">
+      <div class="meta">
+        <div><b>Prepared for</b><span>Mario I. Molina, Esq.</span></div>
+        <div><b>Date</b><span>June 22, 2026</span></div>
+        <div><b>Platform</b><span>Monday</span></div>
+        <div><b>Type</b><span>Recommendation</span></div>
+      </div>
+    </header>
+    <div class="pad">
+<p>An optimized intake pipeline for PLG&#x27;s TCPA practice: every stage, the doors out of each stage (its <strong>dispositions</strong>), who owns it, and how long it should sit before someone acts.</p>
+<p>Written to be read by a principal in ten minutes, and to double as the build spec for the board in Monday.</p>
+<p>It is source-agnostic — it works whether a lead comes from PLG&#x27;s own campaigns, a referral, a walk-in, or any vendor.</p>
+<p>This is a working design and a suggestion; the final setup is PLG&#x27;s call.</p>
+<h2 id="why-this-design-what-makes-an-intake-pipeline-effective">Why this design — what makes an intake pipeline effective</h2>
+<p>The target is throughput at scale: on the order of <strong>1,000 qualified, signed cases a month</strong> moving cleanly from first contact to filed.</p>
+<p>At that volume nothing can depend on a person remembering to check a lead. The board has to route, time, and escalate by itself.</p>
+<p><strong>An effective pipeline:</strong></p>
+<ul><li>gives each stage one meaning, one owner, and one clock</li><li>leaves every lead with exactly one obvious next action</li><li>recycles a winnable-but-not-ready lead instead of discarding it</li><li>keeps origin, channel, evidence, and reason as <em>fields</em> — so the board stays short and reports slice any way</li><li>routes and escalates automatically, because no one reads 1,000 cards by hand</li></ul>
+<p><strong>What it is built to avoid:</strong></p>
+<ul><li>overloaded buckets where three different problems hide under one label</li><li>leads with no owner and no clock that quietly go cold</li><li>dead-ending a winnable lead as &quot;disqualified&quot;</li><li>inventing stages for things that are really attributes (time, channel, source)</li><li>manual tracking that collapses the moment volume climbs</li></ul>
+<h2 id="how-to-read-this">How to read this</h2>
+<p>Four words carry the whole document:</p>
+<ul><li><strong>Lead</strong> — a person. One record per claimant.</li><li><strong>Case</strong> — one claim against one sender (defendant). A Lead opens <strong>one or more Cases</strong>.</li><li><strong>Stage</strong> — where a Lead or Case is right now (a column on the board).</li><li><strong>Disposition</strong> — a door out of a stage: where the record goes next, and on what condition.</li></ul>
+<p>Two boards, linked:</p>
+<ul><li>the <strong>Lead board</strong> runs the person from first contact to signed retainer</li><li>the <strong>Case board</strong> runs each claim from evidence to filed</li></ul>
+<p><strong>Color is meaning.</strong> Every diagram uses the same seven categories, so a glance tells you what kind of state a box is:</p>
+<div class="legend"><div class="lg"><span class="lgsw" style="background:#0b0c10"></span><div><b>Black</b>Entry — just arrived, untouched</div></div><div class="lg"><span class="lgsw" style="background:#356aa6"></span><div><b>Blue</b>In motion — actively being worked</div></div><div class="lg"><span class="lgsw" style="background:#16a34a"></span><div><b>Green</b>Forward / win — advancing or won</div></div><div class="lg"><span class="lgsw" style="background:#d97706"></span><div><b>Amber</b>Bottleneck — needs attention</div></div><div class="lg"><span class="lgsw" style="background:#64748b"></span><div><b>Slate</b>Parked, recyclable — alive, will re-enter</div></div><div class="lg"><span class="lgsw" style="background:#0d9488"></span><div><b>Teal</b>Parked, good claim / wrong geography — an asset on ice</div></div><div class="lg"><span class="lgsw" style="background:#dc2626"></span><div><b>Red</b>Closed — dead</div></div></div>
+<h2 id="1-the-model-a-person-and-their-claims">1 · The model: a person, and their claims</h2>
+<p>A TCPA claimant has often been hit by <strong>one or several senders</strong> — unwanted texts, prerecorded calls, or ringless voicemails.</p>
+<p>Each sender is a <strong>separate case</strong> on its own schedule. One can be filed while another is still gathering evidence and a third is dead.</p>
+<p>So the board separates the <strong>person</strong> (the Lead) from the <strong>claim</strong> (the Case):</p>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    R[&quot;Retained Lead&lt;br/&gt;one person · retainer · source&quot;]:::win
+    R --&gt; K1[&quot;Case · Sender A&quot;]:::work
+    R --&gt; K2[&quot;Case · Sender B&quot;]:::work
+    R --&gt; K3[&quot;Case · Sender C&quot;]:::work
+    K1 --&gt; S1[&quot;Filed&quot;]:::win
+    K2 --&gt; S2[&quot;Evidence Pending&quot;]:::attn
+    K3 --&gt; S3[&quot;Disqualified · non-marketing&quot;]:::dead
+    classDef win fill:#16a34a,color:#fff
+    classDef work fill:#356aa6,color:#fff
+    classDef attn fill:#d97706,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div><figcaption><b>Figure 1</b>One client, three claims, three live states at once.</figcaption></figure>
+<p>After signing, the <strong>claim</strong> is the unit the board tracks, not the person.</p>
+<p>A claimant who returns later with a new sender does not become a new Lead — a new Case is added under the Lead they already have.</p>
+<h2 id="2-the-lead-board-stages-owners-clocks-dispositions">2 · The Lead board — stages, owners, clocks, dispositions</h2>
+<p>Six stages run the person from arrival to signature.</p>
+<p>Stages are <strong>checkpoints, not waiting rooms</strong>: most leads qualify and sign on the same call, crossing several stages in minutes. The board stamps each one as it passes, so the timing reports still work.</p>
+<h3>2.1 · New Lead <span class="cdot" style="background:#0b0c10"></span></h3>
+<p><strong>Owner:</strong> Setter · <strong>⏱ Clock:</strong> first dial within <strong>1 minute</strong> in business hours (alert at 5).</p>
+<p>The logic: a lead rests here only while it is untouched. The first firm to respond is the one that signs, so this is the most aggressive clock on the board, and it runs only in business hours — an overnight arrival starts its clock when the desk opens.</p>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;New Lead&quot;]:::entry --&gt;|&quot;first dial&quot;| A[&quot;Attempting Contact&quot;]:::work
+    classDef entry fill:#0b0c10,color:#fff
+    classDef work fill:#356aa6,color:#fff</div></figure>
+<h3>2.2 · Attempting Contact <span class="cdot" style="background:#356aa6"></span></h3>
+<p><strong>Owner:</strong> Setter · <strong>⏱ Clock:</strong> ~6 attempts across ~7 days.</p>
+<p>The logic: the setter is dialing but has not connected. Dispositions:</p>
+<ul><li>connected → Working / Qualifying</li><li>cadence exhausted, never reached → Nurture / Recovery (alive — worth re-engaging)</li><li>wrong or bad number → Disqualified</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Attempting Contact&quot;]:::work
+    S --&gt;|&quot;connected&quot;| W[&quot;Working / Qualifying&quot;]:::work
+    S --&gt;|&quot;never reached&quot;| N[&quot;Nurture / Recovery&quot;]:::park
+    S --&gt;|&quot;wrong / bad number&quot;| X[&quot;Disqualified&quot;]:::dead
+    classDef work fill:#356aa6,color:#fff
+    classDef park fill:#64748b,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div></figure>
+<h3>2.3 · Working / Qualifying <span class="cdot" style="background:#356aa6"></span></h3>
+<p><strong>Owner:</strong> Setter (+ Intake QA) · <strong>⏱ Clock:</strong> resolve on the same call.</p>
+<p>The logic: with the claimant on the line, this stage answers two questions that decide everything after — <em>is the lead in a covered state</em>, and <em>is there complete evidence for at least one case</em>. Those two answers run the gate in §3. Dispositions:</p>
+<ul><li>passes the gate → sign on the call (most) or by link (the rest)</li><li>covered, evidence incomplete → Nurture / Recovery</li><li>not covered but has evidence → Coverage Hold (good claim, wrong geography)</li><li>no claim, or not covered and no evidence → Disqualified</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Working / Qualifying&quot;]:::work
+    S --&gt;|&quot;passes the gate — §3&quot;| G[&quot;Sign — on call or by link&quot;]:::win
+    S --&gt;|&quot;covered, evidence incomplete&quot;| N[&quot;Nurture / Recovery&quot;]:::park
+    S --&gt;|&quot;not covered, has evidence&quot;| CH[&quot;Coverage Hold&quot;]:::cov
+    S --&gt;|&quot;no claim / not covered + no evidence&quot;| X[&quot;Disqualified&quot;]:::dead
+    classDef work fill:#356aa6,color:#fff
+    classDef win fill:#16a34a,color:#fff
+    classDef park fill:#64748b,color:#fff
+    classDef cov fill:#0d9488,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div></figure>
+<h3>2.4 · Retainer Sent <span class="cdot" style="background:#356aa6"></span> — <em>the exception path</em></h3>
+<p><strong>Owner:</strong> Intake · <strong>⏱ Clock:</strong> light nudge at ~2 h, day 1, day 3.</p>
+<p>The logic: most leads sign live, so this stage holds only the ones who did not. The Adobe Sign link is out and short, and most people sign within minutes — so the follow-up is gentle and finite, never a barrage, so the lead is not burned. Dispositions:</p>
+<ul><li>signs → Retained</li><li>raises a concern → Objection / Follow-up</li><li>silent past day 5 → Nurture / Recovery (cold after retainer)</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Retainer Sent&quot;]:::work
+    S --&gt;|&quot;signs&quot;| R[&quot;Retained&quot;]:::win
+    S --&gt;|&quot;raises a concern&quot;| O[&quot;Objection / Follow-up&quot;]:::park
+    S --&gt;|&quot;silent past day 5&quot;| N[&quot;Nurture / Recovery&quot;]:::park
+    classDef work fill:#356aa6,color:#fff
+    classDef win fill:#16a34a,color:#fff
+    classDef park fill:#64748b,color:#fff</div></figure>
+<h3>2.5 · Objection / Follow-up <span class="cdot" style="background:#64748b"></span></h3>
+<p><strong>Owner:</strong> Senior setter / Attorney · <strong>⏱ Clock:</strong> 3–5 days, then defer.</p>
+<p>The logic: coverage and evidence are fine, the client only hesitated on signing. Worked deliberately, not pestered. Dispositions:</p>
+<ul><li>resolved, signs → Retained</li><li>defer → Nurture / Recovery</li><li>declines → Disqualified</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Objection / Follow-up&quot;]:::park
+    S --&gt;|&quot;resolved, signs&quot;| R[&quot;Retained&quot;]:::win
+    S --&gt;|&quot;defer&quot;| N[&quot;Nurture / Recovery&quot;]:::park
+    S --&gt;|&quot;declines&quot;| X[&quot;Disqualified&quot;]:::dead
+    classDef park fill:#64748b,color:#fff
+    classDef win fill:#16a34a,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div></figure>
+<h3>2.6 · Retained <span class="cdot" style="background:#16a34a"></span></h3>
+<p><strong>Owner:</strong> Intake → Case team.</p>
+<p>The logic: the retainer is executed and the board <strong>opens one Case per qualifying sender</strong>. The first case — already fully evidenced to pass the gate — opens directly at Complaint Drafting; any additional senders open at Evidence Pending (§5).</p>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Retained&quot;]:::win ==&gt;|&quot;1st case → drafting · others → evidence&quot;| C[&quot;Case board — §5&quot;]:::work
+    classDef win fill:#16a34a,color:#fff
+    classDef work fill:#356aa6,color:#fff</div></figure>
+<h2 id="3-the-send-retainer-gate-and-the-2-2-fork">3 · The Send-Retainer Gate and the 2×2 fork</h2>
+<p>A retainer link goes out only when <strong>both</strong> are true:</p>
+<ol><li><strong>Coverage</strong> — the lead is in a state PLG serves.</li><li><strong>Evidence</strong> — there is a complete record for <strong>at least one</strong> case: the qualifying contacts for one sender (texts, calls, or voicemails) with timestamps and the sender line.</li></ol>
+<p>When both hold, the Adobe Sign link is sent — short, ready to sign — and most leads sign on the call. The rest sit briefly in Retainer Sent (§2.4).</p>
+<p>The two questions produce four outcomes, and <strong>three of them are not &quot;dead&quot;:</strong></p>
+<table><thead><tr><th></th><th><strong>Complete evidence (≥1 case)</strong></th><th><strong>No / partial evidence</strong></th></tr></thead><tbody><tr><td><strong>In coverage</strong></td><td><span class="cdot" style="background:#16a34a"></span> <strong>Send the retainer</strong> → sign</td><td><span class="cdot" style="background:#64748b"></span> <strong>Nurture / Recovery</strong> — complete the evidence, then re-enter</td></tr><tr><td><strong>Out of coverage</strong></td><td><span class="cdot" style="background:#0d9488"></span> <strong>Coverage Hold</strong> — evidenced claim parked for when PLG opens that state, or referred to co-counsel</td><td><span class="cdot" style="background:#dc2626"></span> <strong>Disqualified</strong> — nothing to work and no coverage</td></tr></tbody></table>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    G{&quot;Send-Retainer Gate&lt;br/&gt;coverage + evidence for 1 case&quot;}:::work
+    G --&gt;|&quot;signs on the call (most)&quot;| R[&quot;Retained&quot;]:::win
+    G --&gt;|&quot;signs by link (the rest)&quot;| RS[&quot;Retainer Sent&quot;]:::work
+    RS --&gt; R
+    classDef work fill:#356aa6,color:#fff
+    classDef win fill:#16a34a,color:#fff</div><figcaption><b>Figure 8</b>The gate.</figcaption></figure>
+<p>Collecting one case&#x27;s evidence <strong>before</strong> sending the retainer is what prevents the common failure mode: people who sign and then never produce a usable record.</p>
+<h2 id="4-the-three-resting-places-none-of-them-is-the-trash">4 · The three resting places — none of them is the trash</h2>
+<p>A Lead that is not moving forward lands in exactly one of three places, chosen by <em>reason</em>, not by accident.</p>
+<p><strong><span class="cdot" style="background:#64748b"></span> Nurture / Recovery — recyclable, alive.</strong><br>A claim probably exists, but something is missing today. Parked with a reason, worked on a short re-engagement cadence, and re-entered the moment the gap closes. Reasons and the play each one gets:</p>
+<ul><li><code>not ready</code> → callback / drip</li><li><code>partial evidence</code> (e.g. one of two messages) → SMS campaign to capture the second after-hours contact</li><li><code>no evidence yet</code> → recovery-setter call</li><li><code>cold after retainer</code> → spaced re-engage</li><li><code>never reached</code> → recovery dialer / SMS</li></ul>
+<p><strong><span class="cdot" style="background:#0d9488"></span> Coverage Hold — good claim, wrong geography.</strong><br>An evidenced claim in a state PLG does not serve yet. Not dead — an asset on ice. It is either reactivated when PLG opens that state, or referred to co-counsel for a referral fee. Reviewed against the coverage roadmap on a set cadence.</p>
+<p><strong><span class="cdot" style="background:#dc2626"></span> Disqualified — dead.</strong><br>No claim is possible and never will be: in-hours only, prior consent, non-marketing sender, a single contact that cannot be supplemented, suppressed repeat plaintiff, wrong/bad number, or out of coverage with no evidence. Closed with a reason; kept for suppression.</p>
+<figure class="diagram"><div class="mermaid">flowchart TD
+    L[&quot;Lead not moving forward&quot;]:::work
+    L --&gt; NR[&quot;Nurture / Recovery&lt;br/&gt;recyclable — re-enters&quot;]:::park
+    L --&gt; CH[&quot;Coverage Hold&lt;br/&gt;evidenced, wrong state&quot;]:::cov
+    L --&gt; DQ[&quot;Disqualified&lt;br/&gt;dead — suppression only&quot;]:::dead
+    NR -.re-enter.-&gt; P[&quot;Working / Qualifying or Retainer Sent&quot;]:::work
+    CH -.coverage opens.-&gt; P
+    classDef work fill:#356aa6,color:#fff
+    classDef park fill:#64748b,color:#fff
+    classDef cov fill:#0d9488,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div><figcaption><b>Figure 9</b>Two of the three resting places feed back into the pipeline. Only Disqualified is final.</figcaption></figure>
+<p>At volume this matters in dollars: the partial-evidence and &quot;couldn&#x27;t send it today&quot; leads already told you they were contacted. They are among the most winnable cases on the board — recycling them is a second, cheaper source of signed retainers.</p>
+<h2 id="5-the-case-board-one-track-per-sender">5 · The Case board — one track per sender</h2>
+<p>Eight stages run each claim from evidence to filed.</p>
+<p>The <strong>first</strong> case enters at Complaint Drafting — its evidence already cleared the gate. <strong>Additional</strong> senders enter at Evidence Pending.</p>
+<h3>5.1 · Evidence Pending <span class="cdot" style="background:#d97706"></span></h3>
+<p><strong>Owner:</strong> Setter / Intake · <strong>⏱ Clock:</strong> 14 days (nudge day 3 / 7 / 14).</p>
+<p>The logic: gathering valid evidence for an additional sender, or for a recovered partial. The historical bottleneck — colored amber so it is always the thing being watched. Dispositions:</p>
+<ul><li>evidence received → Evidence Review</li><li>none producible → Disqualified</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Evidence Pending&quot;]:::attn
+    S --&gt;|&quot;evidence received&quot;| V[&quot;Evidence Review&quot;]:::work
+    S --&gt;|&quot;none producible&quot;| X[&quot;Disqualified&quot;]:::dead
+    classDef attn fill:#d97706,color:#fff
+    classDef work fill:#356aa6,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div></figure>
+<h3>5.2 · Evidence Review <span class="cdot" style="background:#356aa6"></span></h3>
+<p><strong>Owner:</strong> Intake QA / Paralegal · <strong>⏱ Clock:</strong> 2 business days.</p>
+<p>The logic: confirm the evidence actually qualifies — analyzer score, sender identity, after-hours timing, two or more contacts. Dispositions:</p>
+<ul><li>valid → Complaint Drafting</li><li>invalid but recoverable → back to Evidence Pending</li><li>invalid, terminal → Disqualified</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Evidence Review&quot;]:::work
+    S --&gt;|&quot;valid&quot;| D[&quot;Complaint Drafting&quot;]:::work
+    S --&gt;|&quot;invalid · recoverable&quot;| P[&quot;Evidence Pending&quot;]:::attn
+    S --&gt;|&quot;invalid · terminal&quot;| X[&quot;Disqualified&quot;]:::dead
+    classDef work fill:#356aa6,color:#fff
+    classDef attn fill:#d97706,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div></figure>
+<h3>5.3 · Complaint Drafting <span class="cdot" style="background:#356aa6"></span></h3>
+<p><strong>Owner:</strong> Paralegal / Attorney · <strong>⏱ Clock:</strong> 5 business days (pauses while held).</p>
+<p>The logic: evidence is validated and the complaint is being written. Dispositions:</p>
+<ul><li>complete → Ready to File</li><li>needs one datum → Client Info Needed</li><li>firm pauses it → On Hold</li><li>defect cannot clear → Disqualified</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Complaint Drafting&quot;]:::work
+    S --&gt;|&quot;complete&quot;| RF[&quot;Ready to File&quot;]:::win
+    S --&gt;|&quot;needs one datum&quot;| CI[&quot;Client Info Needed&quot;]:::park
+    S --&gt;|&quot;firm pauses it&quot;| H[&quot;On Hold&quot;]:::park
+    S --&gt;|&quot;defect cannot clear&quot;| X[&quot;Disqualified&quot;]:::dead
+    classDef work fill:#356aa6,color:#fff
+    classDef win fill:#16a34a,color:#fff
+    classDef park fill:#64748b,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div></figure>
+<h3>5.4 · Client Info Needed <span class="cdot" style="background:#64748b"></span></h3>
+<p><strong>Owner:</strong> Setter / Intake · <strong>⏱ Clock:</strong> 7 days.</p>
+<p>The logic: the draft is blocked on one missing item — a mailing address, a confirmation. Dispositions:</p>
+<ul><li>datum obtained → Complaint Drafting</li><li>unreachable → Nurture / Recovery</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;Client Info Needed&quot;]:::park
+    S --&gt;|&quot;datum obtained&quot;| D[&quot;Complaint Drafting&quot;]:::work
+    S --&gt;|&quot;unreachable&quot;| N[&quot;Nurture / Recovery&quot;]:::park
+    classDef park fill:#64748b,color:#fff
+    classDef work fill:#356aa6,color:#fff</div></figure>
+<h3>5.5 · On Hold <span class="cdot" style="background:#64748b"></span></h3>
+<p><strong>Owner:</strong> Attorney · <strong>⏱ Clock:</strong> 30-day review.</p>
+<p>The logic: paused on purpose at the firm&#x27;s direction — for example, pending a related sender&#x27;s outcome. Alive, not stuck. Dispositions:</p>
+<ul><li>cleared → Complaint Drafting</li><li>firm drops it → Disqualified</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    S[&quot;On Hold&quot;]:::park
+    S --&gt;|&quot;cleared&quot;| D[&quot;Complaint Drafting&quot;]:::work
+    S --&gt;|&quot;firm drops it&quot;| X[&quot;Disqualified&quot;]:::dead
+    classDef park fill:#64748b,color:#fff
+    classDef work fill:#356aa6,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div></figure>
+<h3>5.6 · Ready to File → Filed → Resolved / Settlement <span class="cdot" style="background:#16a34a"></span></h3>
+<p><strong>Owner:</strong> Filing attorney → Litigation · <strong>⏱ Clock:</strong> file within 5 business days of Ready to File.</p>
+<p>The logic: a cleared case waiting to be filed is stalled revenue, so a breach here escalates. Then the case is filed, then it closes on the merits.</p>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    RF[&quot;Ready to File&quot;]:::win --&gt; F[&quot;Filed&quot;]:::win --&gt; R[&quot;Resolved / Settlement&quot;]:::win
+    classDef win fill:#16a34a,color:#fff</div></figure>
+<h2 id="6-the-whole-picture-integrated">6 · The whole picture, integrated</h2>
+<figure class="diagram"><div class="mermaid">flowchart TD
+    NL[&quot;New Lead&quot;]:::entry --&gt; AC[&quot;Attempting Contact&quot;]:::work
+    AC --&gt; WQ[&quot;Working / Qualifying&quot;]:::work
+    WQ --&gt; GATE{&quot;Gate: coverage + evidence&quot;}:::work
+    GATE --&gt;|&quot;on call (most)&quot;| RET[&quot;Retained&quot;]:::win
+    GATE --&gt;|&quot;by link&quot;| RS[&quot;Retainer Sent&quot;]:::work
+    RS --&gt; RET
+    RS --&gt; OB[&quot;Objection / Follow-up&quot;]:::park
+    OB --&gt; RET
+
+    WQ -.covered, no evidence.-&gt; NR[&quot;Nurture / Recovery&quot;]:::park
+    AC -.never reached.-&gt; NR
+    RS -.cold.-&gt; NR
+    NR -.re-enter.-&gt; WQ
+    WQ -.evidenced, no coverage.-&gt; CH[&quot;Coverage Hold&quot;]:::cov
+    CH -.coverage opens.-&gt; WQ
+    WQ --&gt; DQ[&quot;Disqualified&quot;]:::dead
+    AC --&gt; DQ
+
+    RET ==&gt;|&quot;opens 1..N cases&quot;| CD[&quot;Complaint Drafting · 1st case&quot;]:::work
+    RET -.-&gt;|&quot;more senders&quot;| EP[&quot;Evidence Pending&quot;]:::attn
+    EP --&gt; EV[&quot;Evidence Review&quot;]:::work
+    EV --&gt; CD
+    CD --&gt; RF[&quot;Ready to File&quot;]:::win
+    RF --&gt; FI[&quot;Filed&quot;]:::win
+    FI --&gt; RES[&quot;Resolved / Settlement&quot;]:::win
+    CD --&gt; CIN[&quot;Client Info Needed&quot;]:::park
+    CIN --&gt; CD
+    CD --&gt; OH[&quot;On Hold&quot;]:::park
+    OH --&gt; CD
+    EP --&gt; CDQ[&quot;Case Disqualified&quot;]:::dead
+
+    classDef entry fill:#0b0c10,color:#fff
+    classDef work fill:#356aa6,color:#fff
+    classDef park fill:#64748b,color:#fff
+    classDef cov fill:#0d9488,color:#fff
+    classDef win fill:#16a34a,color:#fff
+    classDef attn fill:#d97706,color:#fff
+    classDef dead fill:#dc2626,color:#fff</div><figcaption><b>Figure 16</b>The full flow.</figcaption></figure>
+<p>The gate is the hinge. The on-call sign is the main event. The two recovery loops on the left feed back in. Only Disqualified is final.</p>
+<h2 id="7-time-governance-sla-and-what-happens-when-it-runs-out">7 · Time governance — SLA and what happens when it runs out</h2>
+<p>Every stage has a default clock. The clocks are <strong>recommended starting points and can be adapted</strong> as volume and staffing change — the value is the <strong>action on breach</strong>, not the exact number.</p>
+<p>At ~1,000 cases a month the escalation is staged and automatic, so a forgotten lead surfaces on its own:</p>
+<ul><li>at <strong>80% of the clock</strong> → a private nudge to the owner</li><li>at <strong>the clock</strong> → the breach action below</li><li><strong>past the clock</strong> → escalate and re-assign to a fallback queue</li></ul>
+<p><strong>The setter supervisor receives every breach and escalation notification.</strong> All clocks run on business hours.</p>
+<table><thead><tr><th>Stage</th><th>Default SLA</th><th>Action on breach</th></tr></thead><tbody><tr><td>New Lead</td><td>first dial ≤ 1 min (alert at 5)</td><td>supervisor alert · re-assign</td></tr><tr><td>Attempting Contact</td><td>~6 attempts / ~7 days</td><td>→ Nurture / Recovery (<code>never reached</code>)</td></tr><tr><td>Working / Qualifying</td><td>same call (open &gt; 24 h)</td><td>supervisor flag</td></tr><tr><td>Retainer Sent</td><td>nudge ~2 h · day 1 · day 3</td><td>silent past day 5 → Nurture (<code>cold after retainer</code>)</td></tr><tr><td>Objection / Follow-up</td><td>3–5 days</td><td>defer to Nurture</td></tr><tr><td>Coverage Hold</td><td>quarterly review</td><td>refer-out decision within ~30 days</td></tr><tr><td>Evidence Pending</td><td>14 days (nudge 3 / 7 / 14)</td><td>recovery review, then Disqualified</td></tr><tr><td>Evidence Review</td><td>2 business days</td><td>supervisor flag</td></tr><tr><td>Complaint Drafting</td><td>5 business days</td><td>escalate to attorney</td></tr><tr><td>Client Info Needed</td><td>7 days</td><td>→ Nurture / Recovery</td></tr><tr><td>On Hold</td><td>30-day review</td><td>attorney decision</td></tr><tr><td>Ready to File</td><td>5 business days</td><td>supervisor escalation — stalled revenue</td></tr></tbody></table>
+<h2 id="8-ownership-and-daily-focus">8 · Ownership and daily focus</h2>
+<p>Every stage has exactly one owner, so a lead or case is always somebody&#x27;s next action. Owners are roles; PLG assigns its people.</p>
+<table><thead><tr><th>Role</th><th>Stages owned</th></tr></thead><tbody><tr><td><strong>Setter / Intake</strong></td><td>New Lead · Attempting Contact · Working / Qualifying · Retainer Sent · Evidence Pending · Client Info Needed</td></tr><tr><td><strong>Recovery setter</strong></td><td>the Nurture / Recovery lane</td></tr><tr><td><strong>Senior setter / Attorney</strong></td><td>Objection / Follow-up</td></tr><tr><td><strong>Intake QA</strong></td><td>Working / Qualifying (assist) · Evidence Review · all Disqualified (logs the reason)</td></tr><tr><td><strong>Paralegal / Attorney</strong></td><td>Complaint Drafting · On Hold · Ready to File</td></tr><tr><td><strong>Litigation</strong></td><td>Filed · Resolved / Settlement</td></tr><tr><td><strong>Setter supervisor</strong></td><td>every critical and SLA-breach notification across the board</td></tr></tbody></table>
+<p>Worked first, every day:</p>
+<ul><li><strong>New Lead</strong> — speed-to-lead; most leads sign on that first call, so this is where most revenue is won or lost.</li><li><strong>Evidence Pending</strong> — the bottleneck for additional and recovered cases; clearing it turns retainers into filable claims.</li><li><strong>Ready to File</strong> — a cleared case waiting to be filed is stalled revenue.</li></ul>
+<p>The Nurture / Recovery lane runs on its own cadence, reviewed weekly. Coverage Hold is reviewed against the coverage roadmap quarterly.</p>
+<h2 id="9-the-lead-s-status-is-a-roll-up-of-its-cases">9 · The Lead&#x27;s status is a roll-up of its cases</h2>
+<p>After Retained, the person&#x27;s status is derived from their claims, not set by hand:</p>
+<table><thead><tr><th>Lead status</th><th>Rule</th></tr></thead><tbody><tr><td><strong>Active</strong></td><td>at least one case is still moving (any stage before Filed).</td></tr><tr><td><strong>Won</strong></td><td>all cases closed and at least one reached Filed or Resolved.</td></tr><tr><td><strong>Lost</strong></td><td>all cases Disqualified and none was ever filed.</td></tr></tbody></table>
+<p>A client with one filed case and one dead case reads <strong>Active / Won</strong>, never &quot;disqualified.&quot;</p>
+<h2 id="10-fields-what-travels-on-the-card-not-as-a-stage">10 · Fields — what travels on the card, not as a stage</h2>
+<p><strong>On the Lead:</strong></p>
+<ul><li>Source / Originated From — intake team · direct · referral · vendor</li><li>Coverage — state served (yes / no)</li><li>Channel — call · chat · SMS · email (the Adobe Sign link is the sign channel)</li><li>Language — EN · ES</li><li>Last Contact (date) · Recovery reason · Coverage-hold reason</li><li>Product — quiet-hours · stop / opt-out · bot-call / voicemail</li><li>Repeat-plaintiff flag · Geo (state) · Consent token (TrustedForm / timestamp)</li></ul>
+<p><strong>On each Case:</strong></p>
+<ul><li>Sender (defendant)</li><li>Disqualification reason</li></ul>
+<p><strong>Disqualification reasons — one list, two origins:</strong></p>
+<ul><li><em>Eligibility:</em> no marketing intent · in-hours only · single contact only · sender unidentifiable / foreign · prior consent · mass-blast self-trail · repeat-plaintiff suppressed · out of coverage with no evidence · wrong / bad number</li><li><em>Case-level:</em> no valid evidence · non-marketing sender · defendant not valid · no violation · missing information (unrecoverable) · client opt-out</li></ul>
+<h2 id="11-the-board-is-run-from-views">11 · The board is run from views</h2>
+<p>A view is a saved filter, grouping, and sort — how the team works the board day to day.</p>
+<p><strong>Lead board views:</strong></p>
+<ul><li>New — uncontacted (oldest first)</li><li>Working contact (Attempting + Working, by Last Contact)</li><li>Awaiting signature (Retainer Sent, by days-since-sent)</li><li>Objections</li><li>Recovery by reason (drives the re-engagement plays)</li><li>Coverage Hold (by state, against the roadmap)</li><li>Disqualified by reason · By source · By channel</li></ul>
+<p><strong>Case board views:</strong></p>
+<ul><li>Evidence queue (Evidence Pending, oldest first)</li><li>To validate (Evidence Review)</li><li>Blocked (Client Info Needed or On Hold)</li><li>Ready to file</li><li>Cases by claimant · Cases by sender</li></ul>
+<p>Every view also has an <strong>SLA-breach view</strong> — anything past its clock — which is what the setter supervisor watches.</p>
+<h2 id="12-key-measures-read-off-the-board-no-invented-metric">12 · Key measures — read off the board, no invented metric</h2>
+<p><strong>Lead:</strong></p>
+<ul><li>time to first contact · contact rate · qualification rate</li><li>share signed on the call vs by link (a health signal — if the link share climbs, setters are not closing live)</li><li>signature rate (Retained ÷ Retainer Sent) · disqualification rate by reason</li></ul>
+<p><strong>Recovery &amp; coverage:</strong></p>
+<ul><li>recovered-to-retained rate</li><li>share of signed retainers sourced from recovery (if 10%+, it is a real channel)</li><li>Coverage-Hold reactivations and referrals</li></ul>
+<p><strong>Case:</strong></p>
+<ul><li>cases filed per retained client · evidence cycle time · blocked count and age</li><li>filing rate (Filed ÷ opened) · time to file (Retained → Filed) · case disqualification rate by reason</li></ul>
+<p><strong>By source / channel:</strong></p>
+<ul><li>every measure sliceable on Source or Channel</li><li>cost per filed case by source</li></ul>
+<h2 id="13-source-agnostic-intake-and-the-two-way-hand-off">13 · Source-agnostic intake and the two-way hand-off</h2>
+<p>Raw inquiries from any source enter at New Lead.</p>
+<p>Leads that arrive already signed with an evidence package — delivered by the intake team — enter at Retained and open their cases. Same board, no per-source stages.</p>
+<p>The pre-signed contract runs both ways:</p>
+<ul><li><strong>into Retained</strong>, the source guarantees, per case, a signed retainer plus the evidence package: screenshots or call records, timestamps, analyzer score, consent answers, product type</li><li><strong>back to the source</strong>, a case that lands in Evidence Pending or Client Info Needed, or hits a defendant-validity defect, flags back — the source recovers the item or confirms the disqualification</li><li>the §10 disqualification list is shared, so a returned case carries a reason both sides report on</li></ul>
+<figure class="diagram"><div class="mermaid">flowchart LR
+    subgraph SRC[&quot;Intake team&quot;]
+        direction TB
+        P[&quot;Signed Retainer + Evidence&lt;br/&gt;(per case)&quot;]:::win
+    end
+    subgraph FIRM[&quot;PLG&quot;]
+        direction TB
+        R2[&quot;Retained&quot;]:::win --&gt; CR[&quot;Case board — §5&quot;]:::work
+    end
+    P ==&gt;|&quot;hand-off&quot;| R2
+    CR -.-&gt;|&quot;return: missing info · defendant validity&quot;| P
+    classDef win fill:#16a34a,color:#fff
+    classDef work fill:#356aa6,color:#fff</div><figcaption><b>Figure 17</b>The seam: one hand-off in, a formal return path out, a shared reason list so both sides reconcile.</figcaption></figure>
+<h2 id="14-building-it-in-monday">14 · Building it in Monday</h2>
+<p>The model maps onto Monday natively — parent items, subitems, status columns, people columns, saved views, and automations. No add-ons.</p>
+<table><thead><tr><th>Concept</th><th>In Monday</th></tr></thead><tbody><tr><td><strong>Lead</strong></td><td>a parent item on the intake board</td></tr><tr><td><strong>Case</strong></td><td>a subitem under that lead — one per sender</td></tr><tr><td><strong>Lead stage (§2)</strong></td><td>a Status column on the item — the six lead stages, plus Nurture / Recovery, Coverage Hold, Disqualified</td></tr><tr><td><strong>Case stage (§5)</strong></td><td>a Status column on the subitem — the eight case stages</td></tr><tr><td><strong>Stage owner (§8)</strong></td><td>a People column on item and subitem</td></tr><tr><td><strong>SLA + breach (§7)</strong></td><td>a date-stamp per move + an automation that nudges the owner at 80% and alerts the setter supervisor on breach</td></tr><tr><td><strong>Coverage · Channel · Language · Source · Recovery reason · Product · Consent</strong></td><td>columns on the item</td></tr><tr><td><strong>Sender · Disqualification reason</strong></td><td>columns on the subitem</td></tr><tr><td><strong>Re-entry from Recovery / Coverage Hold</strong></td><td>move the item&#x27;s status back to Working / Qualifying (an automation can trigger on a field flip)</td></tr><tr><td><strong>Lead roll-up status (§9)</strong></td><td>a Mirror column over the subitems&#x27; stages, reduced to Active / Won / Lost by a Formula column</td></tr><tr><td><strong>Views (§11)</strong></td><td>saved board views — Kanban by the stage column, Main Table grouped by a field, plus an SLA-breach view</td></tr></tbody></table>
+<p>Each stage maps to a Status column, each card to a People owner, each move to a dated SLA.</p>
+<p>So at 1,000 cases a month a lead can never sit in a stage with no owner, no clock, and no next action — which is the whole point.</p>
+    </div>
+    <footer class="foot">
+      Prepared for Mario I. Molina, Esq. · June 22, 2026 · a working recommendation; the final setup is PLG's call.
+      <div class="att">Prepared by Rolls Roas for PLG.</div>
+    </footer>
+  </main>
+</div>
+<script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+mermaid.initialize({startOnLoad:true, securityLevel:'loose', flowchart:{curve:'basis', htmlLabels:true}, themeVariables:{fontFamily:'Inter, Helvetica Neue, Arial, sans-serif', fontSize:'14px'} });
+const links=[...document.querySelectorAll('nav.toc a')];
+const map=new Map(links.map(a=>[a.getAttribute('href').slice(1),a]));
+const obs=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){links.forEach(l=>l.classList.remove('active'));const a=map.get(e.target.id);if(a)a.classList.add('active');}});},{rootMargin:'-10% 0px -80% 0px'});
+document.querySelectorAll('h2[id]').forEach(h=>obs.observe(h));
+</script>
+</body></html>
