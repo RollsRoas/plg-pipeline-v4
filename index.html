@@ -54,14 +54,17 @@ figcaption{font-size:12px;color:var(--muted);margin-top:12px;padding-top:11px;bo
 figcaption b{color:var(--ink);text-transform:uppercase;letter-spacing:.1em;font-size:10px;margin-right:8px}
 footer.foot{padding:26px 70px 34px;border-top:1px solid var(--line);margin-top:46px;font-size:11.5px;color:var(--muted)}
 footer.foot .att{color:var(--faint);font-size:10.5px;margin-top:6px;letter-spacing:.02em}
-.bar{position:fixed;top:16px;right:18px;z-index:50}
-.bar button{background:var(--ink);color:#fff;border:0;border-radius:7px;padding:10px 17px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:.03em;box-shadow:0 2px 8px rgba(0,0,0,.18)}
-.bar button:hover{background:#000}
+.mast-actions{display:flex;flex-wrap:wrap;gap:10px;margin:30px 0 0}
+.mast-actions a{text-decoration:none}
+.mast-actions button{font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.03em;border-radius:8px;padding:11px 18px;border:1px solid transparent;font-family:inherit}
+.mast-actions .primary{background:var(--gold);color:#fff;border-color:var(--gold)}
+.mast-actions .primary:hover{background:var(--gold-soft);border-color:var(--gold-soft)}
+.mast-actions .ghost{background:transparent;color:#edeef0;border-color:rgba(255,255,255,.28)}
+.mast-actions .ghost:hover{border-color:var(--gold-soft);color:#fff}
 @media (max-width:1080px){.wrap{grid-template-columns:1fr}nav.toc{display:none}.pad,header.mast,footer.foot{padding-left:30px;padding-right:30px}.mast h1{font-size:30px}.legend{grid-template-columns:1fr}}
-@media print{body{background:#fff}.wrap{display:block;max-width:none}.sheet{box-shadow:none}nav.toc,.bar{display:none}header.mast,thead th,.cdot,.lgsw,.legend{-webkit-print-color-adjust:exact;print-color-adjust:exact}h2,h3{break-after:avoid}figure,table,.legend{break-inside:avoid}}
+@media print{body{background:#fff}.wrap{display:block;max-width:none}.sheet{box-shadow:none}nav.toc,.mast-actions{display:none}header.mast,thead th,.cdot,.lgsw,.legend{-webkit-print-color-adjust:exact;print-color-adjust:exact}h2,h3{break-after:avoid}figure,table,.legend{break-inside:avoid}}
 </style></head>
 <body>
-<div class="bar"><a href="pipeline-visual.html" target="_blank" rel="noopener" style="text-decoration:none"><button type="button" style="background:#9a7b4f;color:#fff;border-color:#9a7b4f">◇ Ver diagrama visual ↗</button></a><button onclick="window.print()">Print / Save as PDF</button></div>
 <div class="wrap">
   <nav class="toc"><div class="lbl">Contents</div><a href="#why-this-design-what-makes-an-intake-pipeline-effective">Why this design — what makes an intake pipeline effective</a><a href="#how-to-read-this">How to read this</a><a href="#1-the-model-a-person-and-their-claims">1 · The model: a person, and their claims</a><a href="#2-the-lead-board-stages-owners-clocks-dispositions">2 · The Lead board — stages, owners, clocks, dispositions</a><a href="#3-the-send-retainer-gate-and-the-2-2-fork">3 · The Send-Retainer Gate and the 2×2 fork</a><a href="#4-the-three-resting-places-none-of-them-is-the-trash">4 · The three resting places — none of them is the trash</a><a href="#5-the-case-board-one-track-per-sender">5 · The Case board — one track per sender</a><a href="#6-the-whole-picture-integrated">6 · The whole picture, integrated</a><a href="#7-time-governance-sla-and-what-happens-when-it-runs-out">7 · Time governance — SLA and what happens when it runs out</a><a href="#8-ownership-and-daily-focus">8 · Ownership and daily focus</a><a href="#9-the-lead-s-status-is-a-roll-up-of-its-cases">9 · The Lead&#x27;s status is a roll-up of its cases</a><a href="#10-fields-what-travels-on-the-card-not-as-a-stage">10 · Fields — what travels on the card, not as a stage</a><a href="#11-the-board-is-run-from-views">11 · The board is run from views</a><a href="#12-key-measures-read-off-the-board-no-invented-metric">12 · Key measures — read off the board, no invented metric</a><a href="#13-source-agnostic-intake-and-the-two-way-hand-off">13 · Source-agnostic intake and the two-way hand-off</a><a href="#14-building-it-in-monday">14 · Building it in Monday</a></nav>
   <main class="sheet">
@@ -75,6 +78,10 @@ footer.foot .att{color:var(--faint);font-size:10.5px;margin-top:6px;letter-spaci
         <div><b>Date</b><span>June 22, 2026</span></div>
         <div><b>Platform</b><span>Monday</span></div>
         <div><b>Type</b><span>Recommendation</span></div>
+      </div>
+      <div class="mast-actions">
+        <a href="pipeline-visual.html" target="_blank" rel="noopener"><button type="button" class="primary">◇ Ver diagrama visual ↗</button></a>
+        <button type="button" class="ghost" onclick="window.print()">Print / Save as PDF</button>
       </div>
     </header>
     <div class="pad">
